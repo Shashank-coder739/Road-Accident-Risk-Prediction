@@ -1,0 +1,827 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>AccidentAI | Graph Analytics</title>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "Inter", sans-serif;
+            min-height: 100vh;
+            color: #ecfdf5;
+
+            background:
+                radial-gradient(
+                    circle at 10% 0%,
+                    #123f36 0%,
+                    transparent 32%
+                ),
+                radial-gradient(
+                    circle at 95% 100%,
+                    #143b2d 0%,
+                    transparent 30%
+                ),
+                #061411;
+        }
+
+        /* NAVBAR */
+
+        .navbar {
+            width: 100%;
+            padding: 16px 7%;
+
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+
+            background: rgba(5, 20, 16, 0.9);
+            backdrop-filter: blur(14px);
+
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .logo {
+            font-size: 21px;
+            font-weight: 800;
+            color: #4ade80;
+        }
+
+        .logo span {
+            color: white;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 8px;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: #9cafaa;
+
+            font-size: 13px;
+            font-weight: 500;
+
+            padding: 9px 13px;
+            border-radius: 9px;
+
+            transition: 0.25s;
+        }
+
+        .nav-links a:hover,
+        .nav-links .active {
+            color: #4ade80;
+            background: rgba(74,222,128,0.1);
+        }
+
+        /* MAIN */
+
+        .container {
+            width: 90%;
+            max-width: 1150px;
+            margin: auto;
+
+            padding: 50px 0 70px;
+        }
+
+        .page-header {
+            text-align: center;
+            margin-bottom: 35px;
+        }
+
+        .badge {
+            display: inline-block;
+
+            padding: 7px 14px;
+            margin-bottom: 14px;
+
+            border-radius: 30px;
+
+            background: rgba(74,222,128,0.08);
+            border: 1px solid rgba(74,222,128,0.25);
+
+            color: #4ade80;
+
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+
+        .page-header h1 {
+            font-size: clamp(30px, 5vw, 46px);
+            letter-spacing: -1.5px;
+
+            background: linear-gradient(
+                90deg,
+                #ffffff,
+                #4ade80
+            );
+
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .page-header p {
+            max-width: 680px;
+            margin: 12px auto;
+
+            color: #82968f;
+            font-size: 13px;
+            line-height: 1.7;
+        }
+
+        /* STAT CARDS */
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+
+            margin-bottom: 22px;
+        }
+
+        .stat-card {
+            padding: 20px;
+
+            background: rgba(14,31,27,0.92);
+
+            border: 1px solid rgba(255,255,255,0.07);
+            border-radius: 16px;
+
+            text-align: center;
+        }
+
+        .stat-card .icon {
+            font-size: 22px;
+            margin-bottom: 8px;
+        }
+
+        .stat-card h3 {
+            color: #4ade80;
+            font-size: 13px;
+            margin-bottom: 5px;
+        }
+
+        .stat-card p {
+            color: #849890;
+            font-size: 11px;
+        }
+
+        /* CHART GRID */
+
+        .chart-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+
+        .chart-card {
+            background: rgba(14,31,27,0.94);
+
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 20px;
+
+            padding: 24px;
+
+            box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+        }
+
+        .chart-header {
+            margin-bottom: 20px;
+        }
+
+        .chart-header h2 {
+            font-size: 16px;
+            margin-bottom: 6px;
+        }
+
+        .chart-header p {
+            color: #758a82;
+            font-size: 11px;
+            line-height: 1.5;
+        }
+
+        .chart-box {
+            position: relative;
+            height: 310px;
+        }
+
+        /* FULL WIDTH CARD */
+
+        .full-card {
+            margin-top: 20px;
+        }
+
+        /* FOOTER */
+
+        footer {
+            text-align: center;
+            padding: 25px;
+
+            color: #5e746c;
+            font-size: 11px;
+        }
+
+        footer span {
+            color: #4ade80;
+            font-weight: 700;
+        }
+
+        /* RESPONSIVE */
+
+        @media (max-width: 850px) {
+
+            .nav-links {
+                display: none;
+            }
+
+            .stats {
+                grid-template-columns: 1fr;
+            }
+
+            .chart-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .container {
+                width: 92%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<!-- NAVBAR -->
+
+<nav class="navbar">
+
+    <div class="logo">
+        Accident<span>AI</span>
+    </div>
+
+    <div class="nav-links">
+
+        <a href="/">
+            Prediction
+        </a>
+
+        <a href="/Map">
+            Maps
+        </a>
+
+        <a href="/Graphs" class="active">
+            Graphs
+        </a>
+
+        <a href="/Pie">
+            Analytics
+        </a>
+
+    </div>
+
+</nav>
+
+
+<!-- MAIN -->
+
+<div class="container">
+
+    <!-- HEADER -->
+
+    <div class="page-header">
+
+        <div class="badge">
+            📊 DATASET ANALYTICS
+        </div>
+
+        <h1>
+            Accident Graph Analytics
+        </h1>
+
+        <p>
+            Visual analysis of accident records based on
+            day of week, speed limit and accident severity.
+        </p>
+
+    </div>
+
+
+    <!-- STAT CARDS -->
+
+    <div class="stats">
+
+        <div class="stat-card">
+
+            <div class="icon">
+                📅
+            </div>
+
+            <h3>
+                Day Analysis
+            </h3>
+
+            <p>
+                Accident distribution across weekdays
+            </p>
+
+        </div>
+
+
+        <div class="stat-card">
+
+            <div class="icon">
+                🚗
+            </div>
+
+            <h3>
+                Speed Analysis
+            </h3>
+
+            <p>
+                Accident records by speed limit
+            </p>
+
+        </div>
+
+
+        <div class="stat-card">
+
+            <div class="icon">
+                ⚠️
+            </div>
+
+            <h3>
+                Severity Analysis
+            </h3>
+
+            <p>
+                Serious and Slight accident records
+            </p>
+
+        </div>
+
+    </div>
+
+
+    <!-- CHARTS -->
+
+    <div class="chart-grid">
+
+
+        <!-- DAY CHART -->
+
+        <div class="chart-card">
+
+            <div class="chart-header">
+
+                <h2>
+                    📅 Accidents by Day
+                </h2>
+
+                <p>
+                    Number of accident records for each
+                    day of the week.
+                </p>
+
+            </div>
+
+            <div class="chart-box">
+
+                <canvas id="dayChart"></canvas>
+
+            </div>
+
+        </div>
+
+
+
+        <!-- SPEED CHART -->
+
+        <div class="chart-card">
+
+            <div class="chart-header">
+
+                <h2>
+                    🚗 Accidents by Speed Limit
+                </h2>
+
+                <p>
+                    Distribution of accidents according
+                    to recorded speed limits.
+                </p>
+
+            </div>
+
+            <div class="chart-box">
+
+                <canvas id="speedChart"></canvas>
+
+            </div>
+
+        </div>
+
+
+    </div>
+
+
+    <!-- SEVERITY CHART -->
+
+    <div class="chart-card full-card">
+
+        <div class="chart-header">
+
+            <h2>
+                ⚠️ Accident Severity Distribution
+            </h2>
+
+            <p>
+                Comparison of Serious and Slight
+                accident records in the dataset.
+            </p>
+
+        </div>
+
+        <div class="chart-box">
+
+            <canvas id="severityChart"></canvas>
+
+        </div>
+
+    </div>
+
+
+</div>
+
+
+<footer>
+
+    AccidentAI •
+    <span>Python + Flask + Decision Tree</span>
+
+</footer>
+
+
+
+<script>
+
+    /*
+     * DATA COMES FROM FLASK
+     * Do NOT manually enter graph values.
+     */
+
+    const dayLabels =
+        {{ day_counts.keys() | list | tojson }};
+
+    const dayValues =
+        {{ day_counts.values() | list | tojson }};
+
+
+    const speedLabels =
+        {{ speed_counts.keys() | list | tojson }};
+
+    const speedValues =
+        {{ speed_counts.values() | list | tojson }};
+
+
+    const severityLabels =
+        {{ severity_counts.keys() | list | tojson }};
+
+    const severityValues =
+        {{ severity_counts.values() | list | tojson }};
+
+
+
+    /*
+     * COMMON CHART SETTINGS
+     */
+
+    Chart.defaults.color = "#91a59d";
+
+    Chart.defaults.font.family =
+        "Inter, Arial, sans-serif";
+
+
+    /*
+     * DAY CHART
+     */
+
+    new Chart(
+        document.getElementById("dayChart"),
+        {
+
+            type: "bar",
+
+            data: {
+
+                labels: dayLabels,
+
+                datasets: [
+
+                    {
+
+                        label: "Accidents",
+
+                        data: dayValues,
+
+                        backgroundColor:
+                            "#4ade80",
+
+                        borderRadius: 7,
+
+                        borderSkipped: false
+
+                    }
+
+                ]
+
+            },
+
+            options: {
+
+                responsive: true,
+
+                maintainAspectRatio: false,
+
+                plugins: {
+
+                    legend: {
+                        display: false
+                    },
+
+                    tooltip: {
+
+                        backgroundColor:
+                            "#0b211b",
+
+                        borderColor:
+                            "#28523f",
+
+                        borderWidth: 1,
+
+                        padding: 12
+
+                    }
+
+                },
+
+                scales: {
+
+                    x: {
+
+                        grid: {
+                            display: false
+                        },
+
+                        ticks: {
+                            color: "#8ba098"
+                        }
+
+                    },
+
+                    y: {
+
+                        beginAtZero: true,
+
+                        grid: {
+                            color:
+                                "rgba(255,255,255,0.06)"
+                        },
+
+                        ticks: {
+                            color: "#8ba098"
+                        }
+
+                    }
+
+                }
+
+            }
+
+        }
+    );
+
+
+
+    /*
+     * SPEED CHART
+     */
+
+    new Chart(
+        document.getElementById("speedChart"),
+        {
+
+            type: "line",
+
+            data: {
+
+                labels:
+                    speedLabels.map(
+                        value => value + " km/h"
+                    ),
+
+                datasets: [
+
+                    {
+
+                        label: "Accidents",
+
+                        data: speedValues,
+
+                        borderColor:
+                            "#4ade80",
+
+                        backgroundColor:
+                            "rgba(74,222,128,0.12)",
+
+                        fill: true,
+
+                        tension: 0.35,
+
+                        pointBackgroundColor:
+                            "#4ade80",
+
+                        pointBorderColor:
+                            "#071412",
+
+                        pointBorderWidth: 3,
+
+                        pointRadius: 5
+
+                    }
+
+                ]
+
+            },
+
+            options: {
+
+                responsive: true,
+
+                maintainAspectRatio: false,
+
+                plugins: {
+
+                    legend: {
+                        display: false
+                    },
+
+                    tooltip: {
+
+                        backgroundColor:
+                            "#0b211b",
+
+                        borderColor:
+                            "#28523f",
+
+                        borderWidth: 1,
+
+                        padding: 12
+
+                    }
+
+                },
+
+                scales: {
+
+                    x: {
+
+                        grid: {
+                            display: false
+                        }
+
+                    },
+
+                    y: {
+
+                        beginAtZero: true,
+
+                        grid: {
+
+                            color:
+                                "rgba(255,255,255,0.06)"
+
+                        }
+
+                    }
+
+                }
+
+            }
+
+        }
+    );
+
+
+
+    /*
+     * SEVERITY CHART
+     */
+
+    new Chart(
+        document.getElementById("severityChart"),
+        {
+
+            type: "doughnut",
+
+            data: {
+
+                labels: severityLabels,
+
+                datasets: [
+
+                    {
+
+                        data: severityValues,
+
+                        backgroundColor: [
+
+                            "#fb7185",
+                            "#4ade80",
+                            "#fbbf24",
+                            "#60a5fa"
+
+                        ],
+
+                        borderColor:
+                            "#10231e",
+
+                        borderWidth: 5,
+
+                        hoverOffset: 8
+
+                    }
+
+                ]
+
+            },
+
+            options: {
+
+                responsive: true,
+
+                maintainAspectRatio: false,
+
+                cutout: "65%",
+
+                plugins: {
+
+                    legend: {
+
+                        position: "bottom",
+
+                        labels: {
+
+                            padding: 20,
+
+                            usePointStyle: true,
+
+                            color: "#b3c3bd"
+
+                        }
+
+                    },
+
+                    tooltip: {
+
+                        backgroundColor:
+                            "#0b211b",
+
+                        borderColor:
+                            "#28523f",
+
+                        borderWidth: 1,
+
+                        padding: 12
+
+                    }
+
+                }
+
+            }
+
+        }
+    );
+
+</script>
+
+</body>
+</html>
