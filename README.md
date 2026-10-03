@@ -63,3 +63,25 @@ Road-Accident-Risk-Prediction/
     ├── bs.html
     ├── map.html
     └── ur.html
+## 🔄 How It Works
+
+1. The user enters the required accident-related information.
+2. The Flask application receives and processes the input.
+3. The input data is passed to the trained machine learning model.
+4. The model analyzes the provided features.
+5. The system predicts the accident severity.
+6. The prediction is displayed on the web interface.
+7. Accident-related visualizations can also be viewed through the application.
+
+## 📊 Dataset
+
+The project uses historical road accident data stored in `accidents_india.csv`.
+
+The dataset is processed using Python and Pandas for analysis and prediction.
+
+## 🚀 Installation and Setup
+
+### 1. Clone the Repository
+
+```bash
+git clone https://github.com/Shashank-coder739/Road-Accident-Risk-Prediction.git
